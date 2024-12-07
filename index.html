@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche dans Pi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .output {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Recherche dans Pi</h1>
+    <label for="sequence">Entrez la séquence à rechercher :</label>
+    <input type="text" id="sequence" placeholder="Entrez la séquence...">
+    <label for="decimals">Nombre de décimales à analyser :</label>
+    <input type="number" id="decimals" value="1000" min="1">
+    <button onclick="searchInPi()">Rechercher</button>
+
+    <div class="output" id="output"></div>
+</div>
+
+<script>
+    let piData = ''; // Cette variable contiendra les décimales de Pi
+
+    // Charger le fichier Pi contenant les décimales
+    async function loadPiData() {
+        try {
+            const response = await fetch('pi1000000.txt'); // Charge le fichier pi1000000.txt
+            if (!response.ok) {
+                throw new Error('Erreur de chargement des données');
+            }
+            piData = await response.text(); // Récupérer les décimales de Pi sous forme de texte
+        } catch (error) {
+            console.error('Erreur:', error);
+            document.getElementById('output').innerText = 'Impossible de charger les données de Pi.';
+        }
+    }
+
+    // Rechercher une séquence dans les décimales de Pi
+    function searchInPi() {
+        const sequence = document.getElementById('sequence').value.trim(); // Séquence à rechercher
+        const numDecimals = parseInt(document.getElementById('decimals').value); // Nombre de décimales à analyser
+
+        if (!sequence || numDecimals <= 0) {
+            document.getElementById('output').innerText = 'Veuillez entrer une séquence et un nombre de décimales valides.';
+            return;
+        }
+
+        // Si les données Pi ne sont pas encore chargées, les charger
+        if (!piData) {
+            loadPiData().then(() => {
+                searchPi(sequence, numDecimals);
+            });
+        } else {
+            searchPi(sequence, numDecimals);
+        }
+    }
+
+    // Recherche la séquence dans Pi
+    function searchPi(sequence, numDecimals) {
+        const decimals = piData.replace(/\D/g, '').slice(0, numDecimals); // Prendre uniquement les chiffres des décimales
+        const index = decimals.indexOf(sequence); // Trouver la position de la séquence dans les décimales
+
+        if (index !== -1) {
+            document.getElementById('output').innerText = `La séquence "${sequence}" a été trouvée à la position ${index + 1}.`;
+        } else {
+            document.getElementById('output').innerText = `La séquence "${sequence}" n'a pas été trouvée dans les ${numDecimals} premières décimales.`;
+        }
+    }
+
+    // Charger les données de Pi au démarrage
+    loadPiData();
+</script>
+
+</body>
+</html>
